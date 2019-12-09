@@ -87,4 +87,16 @@ Open `parseSales.html` and modify `dataBegin`. Set it to 0 to remove this cutoff
 
 # Some data were not parsed from my ACT logs
 
-Open the FFXIV settings in ACT and ensure `(DEBUG) Log all Network Packets` is enabled
+Open the FFXIV settings in ACT and ensure `(DEBUG) Log all Network Packets` is enabled.  
+Next, open `parseSales.js` and look for `cols[3].indexOf('101E')`. Replace `101E` with your character id (or a substring of it)
+
+# How do i get my character id?
+
+Open some of your ACT logs and look for lines that look like this
+
+```
+252|2019-10-20T23:48:44.1080000+09:00|00000128|101E____|101E____
+```
+
+The `101E____` string there is your character id.
+
