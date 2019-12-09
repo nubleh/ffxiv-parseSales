@@ -107,7 +107,7 @@
 
       const dataBegin = 1568436473940;
       const start = Date.now();
-      const times = Object.keys(data).map(t => parseInt(t)).filter(t => t >= 1568436473940).sort();
+      const times = Object.keys(data).map(t => parseInt(t)).filter(t => t >= dataBegin).sort();
 
       const first = times[0];
       const last = times[times.length - 1];
