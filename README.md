@@ -4,6 +4,10 @@ parse ACT logs and visualize your market and crafting activities
 This script reads your filesystem to parse ACT logs.  
 If you don't trust it to not fuck up your system, read the script and make sure i'm not doing anything suspicious.
 
+# Is there a demo?
+
+http://nubleh.github.io/ffxiv/parseSales/
+
 # What do i need?
 
 - nodejs
@@ -13,6 +17,7 @@ If you don't trust it to not fuck up your system, read the script and make sure 
 - Go to your ACT logs directory (`AppData\Roaming\Advanced Combat Tracker\FFXIVLogs`)
 - Clone the git repo or download the scripts to `AppData\Roaming\Advanced Combat Tracker\FFXIVLogs\ffxiv-parseSales`
 - (You can put this anywhere really, just edit `parseSales.js` to point it to where the logs are at)
+- Open `parseSales.js` and look for `cols[3].indexOf('101E')`. Replace `101E` with your character id (or a substring of it)
 - Run `node parseSales.js`
 - This creates `activity.log` that looks like this:
 
