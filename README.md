@@ -1,6 +1,9 @@
 # ffxiv-parseSales
 parse ACT logs and visualize your market and crafting activities
 
+This script reads your filesystem to parse ACT logs.  
+If you don't trust it to not fuck up your system, read the script and make sure i'm not doing anything suspicious.
+
 # What do i need?
 
 - nodejs
