@@ -2,7 +2,25 @@
 const fs = require('fs');
 const readline = require('readline');
 
-const files = fs.readdirSync('../'); // path to AppData\Roaming\Advanced Combat Tracker\FFXIVLogs
+const filesPath = '../'; // path to AppData\Roaming\Advanced Combat Tracker\FFXIVLogs
+
+const files = fs.readdirSync(filesPath).filter(fileName => fileName.match(/\d{8}/)).sort((fileA, fileB) => {
+  const fileADate = fileA.match(/(\d+)_(\d{8})/);
+  const fileBDate = fileB.match(/(\d+)_(\d{8})/);
+  if (parseInt(fileADate[2]) > parseInt(fileBDate[2])) {
+    return 1;
+  }
+  if (parseInt(fileADate[2]) < parseInt(fileBDate[2])) {
+    return -1;
+  }
+  if (parseInt(fileADate[1]) > parseInt(fileBDate[1])) {
+    return 1;
+  }
+  if (parseInt(fileADate[1]) < parseInt(fileBDate[1])) {
+    return -1;
+  }
+  return 0;
+});
 const logs = files.filter(i => i.match(/^Network/));
 
 console.log(logs);
@@ -18,7 +36,7 @@ function read(index) {
     console.log('Finished reading logs');
     return;
   }
-  const path = `../${logs[index]}`;
+  const path = `${filesPath}${logs[index]}`;
 
   console.log('reading ' + logs[index] + ' ' + index + '/' + logs.length);
   const readInterface = readline.createInterface({
@@ -47,6 +65,7 @@ function read(index) {
           time,
           type: 'money',
           money,
+          dateString: getDateString(date),
         };
         save(newData);
       }
@@ -70,6 +89,7 @@ function read(index) {
           item,
           count,
           price,
+          dateString: getDateString(date),
         };
         save(newData);
       }
@@ -90,6 +110,7 @@ function read(index) {
           type: 'craft',
           item,
           count,
+          dateString: getDateString(date),
         };
         save(newData);
       }
@@ -109,6 +130,7 @@ function read(index) {
           type: 'purchase',
           item,
           count,
+          dateString: getDateString(date),
         };
         save(newData);
       }
@@ -125,4 +147,14 @@ function read(index) {
 
 function save(newData){
   fs.appendFileSync('./activity.log', JSON.stringify(newData) + "\n", 'utf8');
+}
+function pad(a) {
+  let output = a + '';
+  while(output.length < 2) {
+    output = '0' + output;
+  }
+  return output;
+}
+function getDateString(date) {
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }

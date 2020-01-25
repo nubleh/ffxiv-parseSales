@@ -13,9 +13,19 @@ readInterface.on('line', function(line) {
       return;
     }
     const { time, money } = data;
-    console.log(time, money);
-    fs.appendFileSync('./money.csv', `${time},${money}\n`, 'utf8');
+    const date = new Date(time);
+    const outputLine = `${`${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`},${money}\n`;
+    console.log(outputLine);
+    fs.appendFileSync('./money.csv', outputLine, 'utf8');
   }catch(e){
     console.log(e.message)
   }
 });
+
+function pad(a) {
+  let output = a + '';
+  while(output.length < 2) {
+    output = '0' + output;
+  }
+  return output;
+}
