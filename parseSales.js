@@ -58,19 +58,21 @@ function read(index) {
       const time = date.getTime();
       const msg = cols[4];
       const params = msg.match(/(The)?(.*)(.*) you put up for sale in the (.*) markets (has|have) sold for (.*) gil \(after fees\)\./);
-      const count = parseInt(params[2]) || 1;
-      const item = params[3];
-      const location = params[4];
-      const price = parseInt(params[6].replace(/\D/g, ''));
-      // console.log('  sale:', time, count, item, price);
-      const newData = {
-        time,
-        type: 'sale',
-        item,
-        count,
-        price,
-      };
-      save(newData);
+      if (params) {
+        const count = parseInt(params[2]) || 1;
+        const item = params[3];
+        const location = params[4];
+        const price = parseInt(params[6].replace(/\D/g, ''));
+        // console.log('  sale:', time, count, item, price);
+        const newData = {
+          time,
+          type: 'sale',
+          item,
+          count,
+          price,
+        };
+        save(newData);
+      }
     }
 
     if ((cols[2] === '08c2' || cols[2] === '0842') && cols[4].indexOf('You synthesize') !== -1) {
@@ -79,16 +81,18 @@ function read(index) {
       const time = date.getTime();
       const msg = cols[4];
       const params = msg.match(/You synthesize (.*)(.*)\./);
-      const count = parseInt(params[1]) || 1;
-      const item = params[2];
-      // console.log('  craft:', time, count, item);
-      const newData = {
-        time,
-        type: 'craft',
-        item,
-        count,
-      };
-      save(newData);
+      if (params) {
+        const count = parseInt(params[1]) || 1;
+        const item = params[2];
+        // console.log('  craft:', time, count, item);
+        const newData = {
+          time,
+          type: 'craft',
+          item,
+          count,
+        };
+        save(newData);
+      }
     }
 
     if (cols[2] === '0039' && cols[4].indexOf('You purchase') !== -1) {
@@ -97,15 +101,17 @@ function read(index) {
       const time = date.getTime();
       const msg = cols[4];
       const params = msg.match(/You purchase (.*)(.*)\./);
-      const count = parseInt(params[1]) || 1;
-      const item = params[2];
-      const newData = {
-        time,
-        type: 'purchase',
-        item,
-        count,
-      };
-      save(newData);
+      if (params) {
+        const count = parseInt(params[1]) || 1;
+        const item = params[2];
+        const newData = {
+          time,
+          type: 'purchase',
+          item,
+          count,
+        };
+        save(newData);
+      }
     }
 
   });
