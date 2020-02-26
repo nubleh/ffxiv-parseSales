@@ -78,6 +78,13 @@ window.data = {
 
 - Open `parseSales.html` in your web browser
 
+# Money only chart
+
+- modify `parseMoney.js` to add your character id, replacing `'101E'`
+- run `node parseMoney.js`
+- run `node moneyActivityLog2Jsonp.js`
+- open `moneyActivity.html`
+
 # How do i stop the animation?
 
 Click on the money

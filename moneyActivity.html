@@ -1,0 +1,166 @@
+<html>
+  <head>
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+        color: #666;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <svg id="chart"></svg>
+    </div>
+    <script type="text/javascript" src="./moneyActivity.jsonp"></script>
+    <script type="text/javascript">
+      const svg = document.getElementById('chart');
+      const events = [
+        {
+          time: 1572274800000, // 2019/10/29
+          event: '5.1',
+        },
+        {
+          time: 1575903600000, // 2019/12/10
+          event: '5.15',
+        },
+        {
+          time: 1581951600000, // 2020/02/18
+          event: '5.2',
+        },
+      ];
+
+      draw();
+
+      function draw(){
+        const increment = 50000000;
+        const milestones = {};
+        let minTime = Infinity;
+        let maxTime = 0;
+        let minMoney = Infinity;
+        let maxMoney = 0;
+        data.forEach(d => {
+          const time = d.time;
+          if (time > maxTime) {
+            maxTime = time;
+          }
+          if (time < minTime) {
+            minTime = time;
+          }
+          if (d.money > maxMoney) {
+            const newMilestone = Math.floor(d.money / increment);
+            if (
+              newMilestone > Math.floor(maxMoney / increment)
+              && !milestones[newMilestone]
+            ) {
+              milestones[newMilestone] = d.time;
+            }
+            maxMoney = d.money;
+          }
+          if (d.money < minMoney) {
+            minMoney = d.money;
+          }
+        });
+        const scale = parseInt((maxMoney + '').split('').map((n, i) => i === 0 ? '1' : '0').join(''));
+        maxMoney = Math.ceil(maxMoney / scale) * scale;
+        maxTime = ((oldTime) => {
+          const date = new Date(oldTime);
+          date.setDate(date.getDate() + 7);
+          return date.getTime();
+        })(maxTime);
+        const timeRange = maxTime - minTime;
+        console.log(timeRange);
+
+        const monthAxes = [];
+        const monthAxis = new Date(minTime);
+        monthAxis.setMilliseconds(0);
+        monthAxis.setSeconds(0);
+        monthAxis.setMinutes(0);
+        monthAxis.setHours(0);
+        monthAxis.setDate(1);
+        monthAxis.setMonth(monthAxis.getMonth() + 1);
+        while(monthAxis.getTime() < maxTime) {
+          monthAxes.push(monthAxis.getTime());
+          monthAxis.setMonth(monthAxis.getMonth() + 1);
+        }
+
+        const width = window.innerWidth;
+        const height = width * 0.5;
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.innerHTML = `
+          <style>
+            text { font-size: 10px; }
+          </style>
+
+          ${monthAxes.map(m => {
+            const startX = width * ((m - minTime) / timeRange);
+            console.log(startX, width, (new Date(m)), (new Date(minTime)), (new Date(maxTime)));
+            const date = new Date(m);
+            return `
+              <path d="
+                M ${startX} 0
+                L ${startX} ${height}
+              " stroke="#ddd" fill="transparent"/>
+              <text x=${startX + 4} y=${height - 10}>
+                ${date.toLocaleDateString(undefined, {month:'long'})}
+              </text>
+            `;
+          })}
+
+          ${Object.entries(milestones).map(([step, time], i) => {
+            const money = Math.floor(step * increment / 1000000) + 'M';
+            const startX = width * ((time - minTime) / timeRange);
+            const startY = height - (height * ((step * increment) / maxMoney));
+            const lineRange = 20;
+            return `
+              <path d="
+                M ${startX} ${startY - lineRange}
+                L ${startX} ${startY + lineRange}
+              " stroke="#aaa" fill="transparent" stroke-dasharray="4"/>
+              <text x="${startX - 20}" y="${startY - lineRange - 2}">
+                ${money}
+              </text>
+            `;
+          })}
+
+          ${data.map((d, i) => {
+            if (i === 0) {
+              return '';
+            }
+            const prevD = data[i - 1];
+            const startY = height - (height * (prevD.money / maxMoney));
+            const startX = width * ((prevD.time - minTime) / timeRange);
+            const endY = height - (height * (d.money / maxMoney));
+            const endX = width * ((d.time - minTime) / timeRange);
+            return `
+              <path d="
+              M ${startX} ${startY}
+              L ${endX} ${endY}
+              " stroke="black" fill="transparent"/>
+            `;
+          })}
+
+          ${events.map(e => {
+            const startX = width * ((e.time - minTime) / timeRange);
+            return `
+              <path d="
+                M ${startX} 0
+                L ${startX} ${height}
+              " stroke="#f00" fill="transparent"/>
+              <text x="${startX + 2}" y="10">
+                ${e.event}
+              </text>
+            `;
+          })}
+        `;
+      }
+
+      let resizeTimeout = 0;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(draw, 500);
+      });
+    </script>
+  </body>
+
+</html>
