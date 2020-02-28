@@ -5,8 +5,8 @@ const readline = require('readline');
 const filesPath = '../'; // path to AppData\Roaming\Advanced Combat Tracker\FFXIVLogs
 
 const files = fs.readdirSync(filesPath).filter(fileName => fileName.match(/\d{8}/)).sort((fileA, fileB) => {
-  const fileADate = fileA.match(/(\d+)_(\d{8})/);
-  const fileBDate = fileB.match(/(\d+)_(\d{8})/);
+  const fileADate = fileA.match(/_(\d{8})/);
+  const fileBDate = fileB.match(/_(\d{8})/);
   if (parseInt(fileADate[2]) > parseInt(fileBDate[2])) {
     return 1;
   }
@@ -47,7 +47,6 @@ function read(index) {
   });
   readInterface.on('line', function(line) {
     const cols = line.split('|');
-
     if (
       cols[0] === '252'
       && cols[2] === '00000050'
@@ -60,6 +59,10 @@ function read(index) {
       date.setMinutes(0);
       const time = date.getTime();
       const money = parseInt(cols[15], 16);
+
+      if (money > 999999999) {
+        return;
+      }
       if (money > maxMoney) {
         maxMoney = money;
       } else if (money > 0.5 * maxMoney) {

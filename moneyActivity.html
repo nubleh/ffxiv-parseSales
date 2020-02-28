@@ -12,7 +12,7 @@
     <div>
       <svg id="chart"></svg>
     </div>
-    <script type="text/javascript" src="./moneyActivity.jsonp"></script>
+    <script id="dataSrc" type="text/javascript" src="./moneyActivity.jsonp?zxc"></script>
     <script type="text/javascript">
       const svg = document.getElementById('chart');
       const events = [
@@ -39,7 +39,7 @@
         let maxTime = 0;
         let minMoney = Infinity;
         let maxMoney = 0;
-        data.forEach(d => {
+        data.sort((dA, dB) => dA.time > dB.time ? 1 : -1).forEach(d => {
           const time = d.time;
           if (time > maxTime) {
             maxTime = time;
@@ -69,7 +69,6 @@
           return date.getTime();
         })(maxTime);
         const timeRange = maxTime - minTime;
-        console.log(timeRange);
 
         const monthAxes = [];
         const monthAxis = new Date(minTime);
@@ -94,7 +93,6 @@
 
           ${monthAxes.map(m => {
             const startX = width * ((m - minTime) / timeRange);
-            console.log(startX, width, (new Date(m)), (new Date(minTime)), (new Date(maxTime)));
             const date = new Date(m);
             return `
               <path d="
@@ -117,7 +115,7 @@
                 M ${startX} ${startY - lineRange}
                 L ${startX} ${startY + lineRange}
               " stroke="#aaa" fill="transparent" stroke-dasharray="4"/>
-              <text x="${startX - 20}" y="${startY - lineRange - 2}">
+              <text x="${startX + 2}" y="${startY + lineRange}">
                 ${money}
               </text>
             `;
