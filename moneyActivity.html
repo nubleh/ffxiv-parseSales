@@ -83,6 +83,7 @@
           monthAxis.setMonth(monthAxis.getMonth() + 1);
         }
 
+        maxMoney = 999999999;
         const width = window.innerWidth;
         const height = width * 0.5;
         svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -101,6 +102,7 @@
               " stroke="#ddd" fill="transparent"/>
               <text x=${startX + 4} y=${height - 10}>
                 ${date.toLocaleDateString(undefined, {month:'long'})}
+                &nbsp;'${(date.getFullYear() + '').substr(2)}
               </text>
             `;
           })}

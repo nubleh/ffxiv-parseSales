@@ -21,6 +21,22 @@ const files = fs.readdirSync(filesPath).filter(fileName => fileName.match(/\d{8}
   }
   return 0;
 });
+
+const historyFilepath = 'moneyActivityHistory.json';
+const history = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(historyFilepath, 'utf8'));
+  } catch(e) {
+    console.log(e);
+    return {};
+  }
+})();
+const jsonPPath = './moneyActivity.jsonp';
+const cacheDir = './cache/';
+if(!fs.existsSync(cacheDir)) {
+  fs.mkdirSync(cacheDir);
+}
+
 const logs = files.filter(i => i.match(/^Network/));
 
 console.log(logs);
@@ -32,14 +48,29 @@ let currentIndex = 0;
 read(currentIndex);
 let maxMoney = 0;
 
+
 function read(index) {
   if (!logs[index]) {
-    console.log('Finished reading logs');
+    console.log('Finished reading logs, now compiling data');
+    compile();
     return;
   }
-  const path = `${filesPath}${logs[index]}`;
+  const filename = logs[index];
+  const path = `${filesPath}${filename}`;
 
-  console.log('reading ' + logs[index] + ' ' + index + '/' + logs.length);
+  const stats = fs.statSync(path);
+  if (stats.size === history[filename]) {
+    console.log(filename + ' unchanged.');
+    currentIndex++;
+    read(currentIndex);
+    return;
+  }
+  history[filename] = 0;
+  fs.writeFileSync(historyFilepath, JSON.stringify(history, null, 2));
+  const cachePath = cacheDir + filename + '.cache.log';
+  fs.writeFileSync(cachePath, '', 'utf8');
+
+  console.log('reading ' + filename + ' ' + (index + 1) + '/' + logs.length);
   const readInterface = readline.createInterface({
       input: fs.createReadStream(path),
       // output: process.stdout,
@@ -77,7 +108,7 @@ function read(index) {
             money,
             dateString: getDateString(date),
           };
-          save(newData);
+          fs.appendFileSync(cachePath, JSON.stringify(newData) + "\n", 'utf8');
         }
       }
     }
@@ -86,10 +117,77 @@ function read(index) {
 
   readInterface.on('close', () => {
     console.log('finished ' + logs[index]);
+    history[filename] = stats.size;
+    fs.writeFileSync(historyFilepath, JSON.stringify(history, null, 2));
     currentIndex++;
     read(currentIndex);
   });
 }
+
+function compile() {
+  const cacheFiles = fs.readdirSync(cacheDir).filter(fileName => fileName.match(/\d{8}/)).sort((fileA, fileB) => {
+    const fileADate = fileA.match(/_(\d{8})/);
+    const fileBDate = fileB.match(/_(\d{8})/);
+    if (parseInt(fileADate[2]) > parseInt(fileBDate[2])) {
+      return 1;
+    }
+    if (parseInt(fileADate[2]) < parseInt(fileBDate[2])) {
+      return -1;
+    }
+    if (parseInt(fileADate[1]) > parseInt(fileBDate[1])) {
+      return 1;
+    }
+    if (parseInt(fileADate[1]) < parseInt(fileBDate[1])) {
+      return -1;
+    }
+    return 0;
+  });
+  fs.writeFileSync(jsonPPath, '');
+  fs.appendFileSync(jsonPPath, "window.data=[\n", 'utf8');
+  compileFile(cacheFiles, 0);
+}
+
+function compileFile(cacheFiles, index) {
+  const filePath = cacheDir + cacheFiles[index];
+  if (!cacheFiles[index]) {
+    fs.appendFileSync(jsonPPath, "];\n", 'utf8');
+    return;
+  }
+  const readInterface = readline.createInterface({
+    input: fs.createReadStream(filePath),
+    console: false
+  });
+  readInterface.on('line', function(line) {
+    fs.appendFileSync(jsonPPath, line + ",\n", 'utf8');
+  });
+  readInterface.on('close', function(line) {
+    compileFile(cacheFiles, index + 1);
+  });
+}
+// function saveWithCache(newData, filename, logpath) {
+//   const { size } = fs.statSync(logpath);
+//   if (history[filename] === size) {
+//     return;
+//   }
+//   const cachePath = './cache/' + filename + '.cache.log';
+//   fs.appendFileSync(cachePath, JSON.stringify(newData) + "\n", 'utf8');
+//   history[filename] = size;
+//   fs.writeFileSync(historyFilepath, JSON.stringify(history, null, 2));
+
+//   const cacheExists = fs.existsSync(cachePath);
+//   if (!cacheExists) {
+//     saveToCache(newData, cachePath);
+//     return;
+//   }
+  
+//   const { size } = fs.statSync(cachePath);
+//   const oldSize = history[filename];
+//   if (!oldSize || size !== oldSize) {
+//     saveToCache(newData, cachePath);
+//     return;
+//   }
+//   fs.writeFileSync(cachePath, '', 'utf8');
+// }
 
 function save(newData){
   fs.appendFileSync(fileName, JSON.stringify(newData) + "\n", 'utf8');
