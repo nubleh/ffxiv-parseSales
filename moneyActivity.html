@@ -82,6 +82,18 @@
           monthAxes.push(monthAxis.getTime());
           monthAxis.setMonth(monthAxis.getMonth() + 1);
         }
+        const dayAxes = [];
+        const dayAxis = new Date(minTime);
+        dayAxis.setMilliseconds(0);
+        dayAxis.setSeconds(0);
+        dayAxis.setMinutes(0);
+        dayAxis.setHours(0);
+        dayAxis.setDate(1);
+        dayAxis.setDate(dayAxis.getDate() + 1);
+        while(dayAxis.getTime() < maxTime) {
+          dayAxes.push(dayAxis.getTime());
+          dayAxis.setDate(dayAxis.getDate() + 1);
+        }
 
         maxMoney = 999999999;
         const width = window.innerWidth;
@@ -92,6 +104,16 @@
             text { font-size: 10px; }
           </style>
 
+          ${dayAxes.map(m => {
+            const startX = width * ((m - minTime) / timeRange);
+            const date = new Date(m);
+            return `
+              <path d="
+                M ${startX} 0
+                L ${startX} ${height}
+              " stroke="#f5f5f5" fill="transparent"/>
+            `;
+          })}
           ${monthAxes.map(m => {
             const startX = width * ((m - minTime) / timeRange);
             const date = new Date(m);
@@ -116,7 +138,11 @@
               <path d="
                 M ${startX} ${startY - lineRange}
                 L ${startX} ${startY + lineRange}
-              " stroke="#aaa" fill="transparent" stroke-dasharray="4"/>
+              " stroke="#aaa" fill="transparent"/>
+              <path d="
+                M ${startX - lineRange * 0.3} ${startY - lineRange * 0.3}
+                L ${startX + lineRange * 0.3} ${startY + lineRange * 0.3}
+              " stroke="#aaa" fill="transparent"/>
               <text x="${startX + 2}" y="${startY + lineRange}">
                 ${money}
               </text>

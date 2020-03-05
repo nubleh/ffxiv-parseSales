@@ -87,7 +87,7 @@ function read(index) {
       const date = new Date(cols[1]);
       date.setSeconds(0);
       date.setMilliseconds(0);
-      date.setMinutes(0);
+      date.setMinutes(15 * Math.floor(date.getMinutes() / 15));
       const time = date.getTime();
       const money = parseInt(cols[15], 16);
 
