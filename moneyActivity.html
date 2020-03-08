@@ -107,12 +107,28 @@
           ${dayAxes.map(m => {
             const startX = width * ((m - minTime) / timeRange);
             const date = new Date(m);
-            return `
-              <path d="
-                M ${startX} 0
-                L ${startX} ${height}
-              " stroke="#f5f5f5" fill="transparent"/>
-            `;
+            const dayOfWeek = date.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+              return `
+                <path d="
+                  M ${startX} 0
+                  L ${startX} ${height}
+                " stroke="#f5f5f5" fill="transparent"/>
+              `;
+            } else {
+              const nextDay = new Date(date);
+              nextDay.setDate(nextDay.getDate() + 1);
+              const endX = width * ((nextDay.getTime() - minTime) / timeRange);
+              return `
+                <rect
+                  x="${startX}"
+                  y="0"
+                  height="${height}"
+                  width="${endX - startX}"
+                  fill="#f5f5f5"
+                />
+              `;
+            }
           })}
           ${monthAxes.map(m => {
             const startX = width * ((m - minTime) / timeRange);
@@ -138,7 +154,7 @@
               <path d="
                 M ${startX} ${startY - lineRange}
                 L ${startX} ${startY + lineRange}
-              " stroke="#aaa" fill="transparent"/>
+              " stroke="transparent" fill="transparent"/>
               <path d="
                 M ${startX - lineRange * 0.3} ${startY - lineRange * 0.3}
                 L ${startX + lineRange * 0.3} ${startY + lineRange * 0.3}
@@ -158,11 +174,17 @@
             const startX = width * ((prevD.time - minTime) / timeRange);
             const endY = height - (height * (d.money / maxMoney));
             const endX = width * ((d.time - minTime) / timeRange);
+            const label = i === data.length - 1 ? `
+              <text x="${endX - 40}" y="${20}">
+                ${(d.money || 0).toLocaleString()} g
+              </text>
+            ` : '';
             return `
               <path d="
               M ${startX} ${startY}
               L ${endX} ${endY}
               " stroke="black" fill="transparent"/>
+              ${label}
             `;
           })}
 
