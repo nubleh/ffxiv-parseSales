@@ -17,16 +17,20 @@
       const svg = document.getElementById('chart');
       const events = [
         {
-          time: 1572274800000, // 2019/10/29
+          time: 1572343200000, // 2019/10/29
           event: '5.1',
         },
         {
-          time: 1575903600000, // 2019/12/10
+          time: 1575972000000, // 2019/12/10
           event: '5.15',
         },
         {
-          time: 1581951600000, // 2020/02/18
+          time: 1582020000000, // 2020/02/18
           event: '5.2',
+        },
+        {
+          time: 1583834400000, // 2020/02/18
+          event: '5.21',
         },
       ];
 
@@ -175,7 +179,7 @@
             const endY = height - (height * (d.money / maxMoney));
             const endX = width * ((d.time - minTime) / timeRange);
             const label = i === data.length - 1 ? `
-              <text x="${endX - 40}" y="${20}">
+              <text x="${endX - 60}" y="${height / 2}" style="font-size: 14px;">
                 ${(d.money || 0).toLocaleString()} g
               </text>
             ` : '';
