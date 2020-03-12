@@ -141,7 +141,7 @@
               <path d="
                 M ${startX} 0
                 L ${startX} ${height}
-              " stroke="#ddd" fill="transparent"/>
+              " stroke="#bbb" fill="transparent"/>
               <text x=${startX + 4} y=${height - 10}>
                 ${date.toLocaleDateString(undefined, {month:'long'})}
                 &nbsp;'${(date.getFullYear() + '').substr(2)}
@@ -199,7 +199,7 @@
                 M ${startX} 0
                 L ${startX} ${height}
               " stroke="#f00" fill="transparent"/>
-              <text x="${startX + 2}" y="10">
+              <text x="${startX - 30}" y="10">
                 ${e.event}
               </text>
             `;

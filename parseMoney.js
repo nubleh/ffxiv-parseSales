@@ -71,6 +71,7 @@ function read(index) {
   fs.writeFileSync(cachePath, '', 'utf8');
 
   console.log('reading ' + filename + ' ' + (index + 1) + '/' + logs.length);
+  let dataBuffer = {};
   const readInterface = readline.createInterface({
       input: fs.createReadStream(path),
       // output: process.stdout,
@@ -97,18 +98,21 @@ function read(index) {
       if (money > maxMoney) {
         maxMoney = money;
       } else if (money > 0.5 * maxMoney) {
-        const timeKey = date.toString();
         // safeguard to exclude badly parsed data
         // (i know i won't suddenly spend 50% of my money in one go)
-        if (!data[timeKey]) {
-          data[timeKey] = true;
-          const newData = {
+        const timeKey = date.toString();
+        dataBuffer = {
+          data: {
             time,
             type: 'money',
             money,
             dateString: getDateString(date),
-          };
-          fs.appendFileSync(cachePath, JSON.stringify(newData) + "\n", 'utf8');
+          },
+          cachePath,
+        };
+        if (!data[timeKey]) {
+          data[timeKey] = true;
+          fs.appendFileSync(cachePath, JSON.stringify(dataBuffer.data) + "\n", 'utf8');
         }
       }
     }
@@ -117,6 +121,10 @@ function read(index) {
 
   readInterface.on('close', () => {
     console.log('finished ' + logs[index]);
+    fs.appendFileSync(dataBuffer.cachePath, JSON.stringify({
+      ...dataBuffer.data,
+      time: dataBuffer.data.time + 1,
+    }) + "\n", 'utf8');
     history[filename] = stats.size;
     fs.writeFileSync(historyFilepath, JSON.stringify(history, null, 2));
     currentIndex++;
